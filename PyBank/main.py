@@ -1,6 +1,10 @@
+if __name__ == "__main__":
+    pass
+
 import os
 import csv
 import math
+import print_to_text
 
 
 
@@ -61,24 +65,37 @@ def TotalMonth(data):
                 data_from_csv.append(month_data)
         return data_from_csv
 
-
-        
+    
 
 
 all_data_csv = TotalMonth(csv_file)    # populates losses and profits list.
-print("Financial Analysis\n----------------------------")
+TextLines = []
+TextLines.append("Financial Analysis\n----------------------------")
+#print("Financial Analysis\n----------------------------")
 total_months = len(all_data_csv)
-print("Total Months: " + str(total_months))
+
+TextLines.append("Total Months: " + str(total_months))
+#print("Total Months: " + str(total_months))
 
 total_overall = [all_data[amount_tag] for all_data in all_data_csv]
 total_sum = sum(total_overall)
-print("Total: $" + '%.2f' % total_sum)
+TextLines.append("Total: $" + '%.2f' % total_sum)
+#print("Total: $" + '%.2f' % total_sum)
 
 avg = GetAverage(all_data_csv)
-print(f"The Average Change: $" + '%.2f' % avg)
+TextLines.append("The Average Change: $" + '%.2f' % avg)
+#print(f"The Average Change: $" + '%.2f' % avg)
 
 largest_profit = GetLargest(all_data_csv, profitable)
-print("Greatest increase in profits: " + largest_profit[largest_month_tag] + " ($" + '%.2f' % largest_profit[largest_amount_tag] + ")")
+TextLines.append("Greatest increase in profits: " + largest_profit[largest_month_tag] + " ($" + '%.2f' % largest_profit[largest_amount_tag] + ")")
+#print("Greatest increase in profits: " + largest_profit[largest_month_tag] + " ($" + '%.2f' % largest_profit[largest_amount_tag] + ")")
 
 largest_loss = GetLargest(all_data_csv, loss)
-print(f"Greatest decrease in profits: " + largest_loss[largest_month_tag] + " ($-" + '%.2f' % largest_loss[largest_amount_tag] + ")")
+TextLines.append("Greatest decrease in profits: " + largest_loss[largest_month_tag] + " ($-" + '%.2f' % largest_loss[largest_amount_tag] + ")")
+#print(f"Greatest decrease in profits: " + largest_loss[largest_month_tag] + " ($-" + '%.2f' % largest_loss[largest_amount_tag] + ")")
+
+for line in TextLines:
+    print(line)
+
+#PrintToText(TextLines,"bank_out.txt","output")
+print_to_text.main(TextLines,"bank_out.txt","output")
