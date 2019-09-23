@@ -111,5 +111,5 @@ for winner in election_results:
     spaces = 21 - start_chars
     sp = ''
     for i in range(0,spaces):
-        sp += '\s'
+        sp += ' '
     print(winner[candidate] + sp + str(winner["votes"]))
