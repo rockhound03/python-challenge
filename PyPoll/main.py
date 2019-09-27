@@ -3,7 +3,6 @@ if __name__ == "__main__":
 
 import os
 import csv
-import math
 import print_to_text
 
 csv_file_path = os.path.join('Resources', 'election_data.csv')
@@ -16,7 +15,6 @@ candidate = "Candidate"
 def GetElectionResults(CSVFile):
     with open(CSVFile,'r') as cvsdata:
         data_from_csv = []
-        #header_info = []
         csvreader = csv.reader(cvsdata,delimiter=',')
         next(csvreader) # skip header
         for vote in csvreader:
@@ -24,7 +22,7 @@ def GetElectionResults(CSVFile):
             data_from_csv.append(voter_result)
         return data_from_csv
 
-
+# Find unique candidate and county names.  Used later in vote counting.
 def GetUniqueCandidatesCounties(RawData):
     list_of_candidates = []
     list_of_counties = []
@@ -51,7 +49,7 @@ def GetUniqueCandidatesCounties(RawData):
     counties_and_candidates = {"counties" : list_of_counties, "candidates" : list_of_candidates}
     return counties_and_candidates
 
-
+# Accumulate the vote results by candidate name.  Tracked in a list of dictionaries.
 def CountResults(candidate_county, RawData):
     tally_chart = []
     for person in candidate_county["candidates"]:
@@ -64,6 +62,7 @@ def CountResults(candidate_county, RawData):
                 person["votes"] += 1
     return tally_chart
 
+# calculate percentages (needs to be done once totals are counted).  Adds percentages and finds winner and inserts in list of dicts.
 def CalcPercent(result_sheet):
     total = int(0)
     win_count = int(0)
@@ -85,21 +84,17 @@ def CalcPercent(result_sheet):
         win_answer = False
     return result_w_percent
 
-
+# call result / percentage calcs.
 election_data = GetElectionResults(csv_file_path)
 all_candidates_counties = GetUniqueCandidatesCounties(election_data)
+# Output string building.
 candidate_list = []
-""" for person in all_candidates_counties["candidates"]:
-    candidate_list.append(person)
-    print(person) """
 TextLines = []
-#print("--------------Counties Reporting-----------------")
+
 TextLines.append("--------------Counties Reporting-----------------")
 for seat in all_candidates_counties["counties"]:
     TextLines.append(seat)
 
-
-# 21 spaces
 election_results = CountResults(all_candidates_counties, election_data)
 final_tally = CalcPercent(election_results)
 
@@ -128,7 +123,7 @@ for the_winner in final_tally:
     if the_winner["won"] == True:
         TextLines.append("Winner: " + the_winner[candidate])
 TextLines.append("*************************************************")
-
+# Print output to console as well as text file in output folder.
 for line in TextLines:
     print(line)
 print_to_text.main(TextLines,"poll_result.txt","output")
