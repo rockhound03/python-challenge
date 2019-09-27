@@ -12,7 +12,6 @@ voter_id = "Voter ID"
 county = "County"
 candidate = "Candidate"
 
-#Voter ID,County,Candidate
 
 def GetElectionResults(CSVFile):
     with open(CSVFile,'r') as cvsdata:
@@ -56,54 +55,61 @@ def GetUniqueCandidatesCounties(RawData):
 def CountResults(candidate_county, RawData):
     tally_chart = []
     for person in candidate_county["candidates"]:
-        candidate_tally = {candidate : person, "votes" : 0 , "percent" : 0 }
+        candidate_tally = {candidate : person, "votes" : 0, "percent" : 0, "won" : False }
         tally_chart.append(candidate_tally)
     
     for vote in RawData:
         for person in tally_chart:
             if vote[candidate] == person[candidate]:
-                person["votes"] += 1   
+                person["votes"] += 1
     return tally_chart
 
 def CalcPercent(result_sheet):
     total = int(0)
+    win_count = int(0)
+    win_name = ""
+    win_answer = False
     for running in result_sheet:
         total += running["votes"]
+        if running["votes"] > win_count:
+            win_count = running["votes"]
+            win_name = running[candidate]
     
     result_w_percent = []
-    result_w_percent.append({candidate : "Total", "votes" : total, "percent" : 100.0})
+    result_w_percent.append({candidate : "Total", "votes" : total, "percent" : 100.0, "won" : False})
     for can_result in result_sheet:
-        result_w_percent.append({candidate : can_result[candidate], "votes" : int(can_result["votes"]), "percent" :  can_result["votes"] / total * 100})
+        if can_result[candidate] == win_name:
+            win_answer = True
+        result_w_percent.append({candidate : can_result[candidate], "votes" : int(can_result["votes"]), 
+        "percent" :  can_result["votes"] / total * 100, "won" : win_answer})
+        win_answer = False
     return result_w_percent
-
-        
-
 
 
 election_data = GetElectionResults(csv_file_path)
 all_candidates_counties = GetUniqueCandidatesCounties(election_data)
-# all_counties = GetCountiesReporting(election_data)
-print("-- Candidates --")
 candidate_list = []
-for person in all_candidates_counties["candidates"]:
+""" for person in all_candidates_counties["candidates"]:
     candidate_list.append(person)
-    print(person)
-
-print("-- Counties Reporting --")
+    print(person) """
+TextLines = []
+#print("--------------Counties Reporting-----------------")
+TextLines.append("--------------Counties Reporting-----------------")
 for seat in all_candidates_counties["counties"]:
-    print(seat)
+    TextLines.append(seat)
 
 
 # 21 spaces
 election_results = CountResults(all_candidates_counties, election_data)
 final_tally = CalcPercent(election_results)
-TextLines = []
+
 TextLines.append("*************************************************")
 TextLines.append("---------------Election Results------------------\n")
+for total_vote in final_tally:
+    if total_vote[candidate] == "Total":
+        TextLines.append("Total Votes: " + str(total_vote["votes"]))
+
 TextLines.append("Candidate       Votes Received       Percentage")
-#print("*************************************************")
-#print("---------------Election Results------------------")
-#print("Candidate       Votes Received       Percentage")
 for winner in final_tally:
     start_chars = len(winner[candidate])
     percent_chars = len(str(winner["votes"]))
@@ -115,9 +121,12 @@ for winner in final_tally:
         sp += ' '
     for i in range(0, per_spaces):
         sp_perc += ' '
-    TextLines.append(winner[candidate] + sp + str(winner["votes"]) + sp_perc + '%.1f' % winner["percent"])
-    #print(winner[candidate] + sp + str(winner["votes"]) + sp_perc + '%.1f' % winner["percent"])
+    if winner[candidate] != "Total":
+        TextLines.append(winner[candidate] + sp + str(winner["votes"]) + sp_perc + '%.1f' % winner["percent"])
 TextLines.append("\n------------------Final Tally--------------------")
+for the_winner in final_tally:
+    if the_winner["won"] == True:
+        TextLines.append("Winner: " + the_winner[candidate])
 TextLines.append("*************************************************")
 
 for line in TextLines:
