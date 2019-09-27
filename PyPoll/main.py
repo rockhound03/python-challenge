@@ -5,7 +5,7 @@ import os
 import csv
 import print_to_text
 
-# Constants / reference variables.
+# Constants / reference variables.************************************************
 csv_file_path = os.path.join('Resources', 'election_data.csv')
 
 voter_id = "Voter ID"
@@ -17,7 +17,7 @@ votes_tag = "votes"
 percent_tag = "percent"
 won_tag = "won"
 white_space = " "
-# ************************************************************
+# *********************************************************************************
 # Load csv file contents into memory.
 def GetElectionResults(CSVFile):
     with open(CSVFile,'r') as cvsdata:
@@ -71,12 +71,11 @@ def CountResults(candidate_county, RawData):
 
 # calculate percentages (needs to be done once totals are counted).  Adds percentages and finds winner and inserts in list of dicts.
 def CalcPercent(result_sheet):
-    total = int(0)
+    total = sum([data[votes_tag] for data in result_sheet])
     win_count = int(0)
     win_name = ""
     win_answer = False
     for running in result_sheet:
-        total += running[votes_tag]
         if running[votes_tag] > win_count:
             win_count = running[votes_tag]
             win_name = running[candidate]

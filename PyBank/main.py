@@ -5,9 +5,7 @@ import os
 import csv
 import print_to_text
 
-
-
-# Constants ***************************************************************************************
+# Constants / reference variables.************************************************
 csv_file = os.path.join('Resources','budget_data.csv')
 profitable = True
 loss = False
@@ -19,7 +17,7 @@ profit_tag = "profit"
 amount_tag = "amount"
 month_tag = "month"
 
-# **************************************************************************************************
+# **********************************************************************************
 # Function to find average value.
 def GetAverage(DataList):
     to_be_averaged = [data[amount_tag] for data in DataList]
