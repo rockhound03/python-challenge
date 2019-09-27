@@ -5,13 +5,20 @@ import os
 import csv
 import print_to_text
 
+# Constants / reference variables.
 csv_file_path = os.path.join('Resources', 'election_data.csv')
 
 voter_id = "Voter ID"
 county = "County"
 candidate = "Candidate"
-
-
+counties_tag = "counties"
+candidates_tag = "candidates"
+votes_tag = "votes"
+percent_tag = "percent"
+won_tag = "won"
+white_space = " "
+# ************************************************************
+# Load csv file contents into memory.
 def GetElectionResults(CSVFile):
     with open(CSVFile,'r') as cvsdata:
         data_from_csv = []
@@ -21,7 +28,7 @@ def GetElectionResults(CSVFile):
             voter_result = {voter_id : vote[0], county : vote[1], candidate : vote[2]}
             data_from_csv.append(voter_result)
         return data_from_csv
-
+# *********************************************************************************
 # Find unique candidate and county names.  Used later in vote counting.
 def GetUniqueCandidatesCounties(RawData):
     list_of_candidates = []
@@ -46,20 +53,20 @@ def GetUniqueCandidatesCounties(RawData):
                     found = True
             if not found:
                 list_of_counties.append(data[county])
-    counties_and_candidates = {"counties" : list_of_counties, "candidates" : list_of_candidates}
+    counties_and_candidates = {counties_tag : list_of_counties, candidates_tag : list_of_candidates}
     return counties_and_candidates
-
+# *********************************************************************************
 # Accumulate the vote results by candidate name.  Tracked in a list of dictionaries.
 def CountResults(candidate_county, RawData):
     tally_chart = []
-    for person in candidate_county["candidates"]:
-        candidate_tally = {candidate : person, "votes" : 0, "percent" : 0, "won" : False }
+    for person in candidate_county[candidates_tag]:
+        candidate_tally = {candidate : person, votes_tag : 0, percent_tag : 0, won_tag : False }
         tally_chart.append(candidate_tally)
     
     for vote in RawData:
         for person in tally_chart:
             if vote[candidate] == person[candidate]:
-                person["votes"] += 1
+                person[votes_tag] += 1
     return tally_chart
 
 # calculate percentages (needs to be done once totals are counted).  Adds percentages and finds winner and inserts in list of dicts.
@@ -69,18 +76,18 @@ def CalcPercent(result_sheet):
     win_name = ""
     win_answer = False
     for running in result_sheet:
-        total += running["votes"]
-        if running["votes"] > win_count:
-            win_count = running["votes"]
+        total += running[votes_tag]
+        if running[votes_tag] > win_count:
+            win_count = running[votes_tag]
             win_name = running[candidate]
     
     result_w_percent = []
-    result_w_percent.append({candidate : "Total", "votes" : total, "percent" : 100.0, "won" : False})
+    result_w_percent.append({candidate : "Total", votes_tag : total, percent_tag : 100.0, won_tag : False})
     for can_result in result_sheet:
         if can_result[candidate] == win_name:
             win_answer = True
-        result_w_percent.append({candidate : can_result[candidate], "votes" : int(can_result["votes"]), 
-        "percent" :  can_result["votes"] / total * 100, "won" : win_answer})
+        result_w_percent.append({candidate : can_result[candidate], votes_tag : int(can_result[votes_tag]), 
+        percent_tag :  can_result[votes_tag] / total * 100, won_tag : win_answer})
         win_answer = False
     return result_w_percent
 
@@ -92,7 +99,7 @@ candidate_list = []
 TextLines = []
 
 TextLines.append("--------------Counties Reporting-----------------")
-for seat in all_candidates_counties["counties"]:
+for seat in all_candidates_counties[counties_tag]:
     TextLines.append(seat)
 
 election_results = CountResults(all_candidates_counties, election_data)
@@ -102,25 +109,26 @@ TextLines.append("*************************************************")
 TextLines.append("---------------Election Results------------------\n")
 for total_vote in final_tally:
     if total_vote[candidate] == "Total":
-        TextLines.append("Total Votes: " + str(total_vote["votes"]))
+        TextLines.append("Total Votes: " + str(total_vote[votes_tag]))
 
 TextLines.append("Candidate       Votes Received       Percentage")
 for winner in final_tally:
     start_chars = len(winner[candidate])
-    percent_chars = len(str(winner["votes"]))
+    percent_chars = len(str(winner[votes_tag]))
     spaces = 16 - start_chars
     per_spaces = 21 - percent_chars
     sp = ''
     sp_perc = ''
+    # Add white space for appearance in output.
     for i in range(0,spaces):
-        sp += ' '
+        sp += white_space
     for i in range(0, per_spaces):
-        sp_perc += ' '
+        sp_perc += white_space
     if winner[candidate] != "Total":
-        TextLines.append(winner[candidate] + sp + str(winner["votes"]) + sp_perc + '%.1f' % winner["percent"])
+        TextLines.append(winner[candidate] + sp + str(winner[votes_tag]) + sp_perc + '%.1f' % winner[percent_tag])
 TextLines.append("\n------------------Final Tally--------------------")
 for the_winner in final_tally:
-    if the_winner["won"] == True:
+    if the_winner[won_tag] == True:
         TextLines.append("Winner: " + the_winner[candidate])
 TextLines.append("*************************************************")
 # Print output to console as well as text file in output folder.
