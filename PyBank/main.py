@@ -3,12 +3,9 @@ if __name__ == "__main__":
 
 import os
 import csv
-#import math
 import print_to_text
 
 
-
-#PyBank/Resources/budget_data.csv
 
 # Constants ***************************************************************************************
 csv_file = os.path.join('Resources','budget_data.csv')
